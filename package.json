@@ -1,0 +1,16 @@
+{
+  "name": "store_link_scv_parser",
+  "private": true,
+  "dependencies": {
+    "@babel/preset-react": "~7.7.4",
+    "@rails/webpacker": "~4.2.2",
+    "bootstrap": "~4.4.1",
+    "react": "~16.12.0",
+    "react-bootstrap": "~1.0.0-beta.16",
+    "react-dom": "~16.12.0"
+  },
+  "version": "0.1.0",
+  "devDependencies": {
+    "webpack-dev-server": "~3.10.1"
+  }
+}
