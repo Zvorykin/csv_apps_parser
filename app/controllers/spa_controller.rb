@@ -4,8 +4,8 @@ class SpaController < ApplicationController
   def index; end
 
   def parse
-    result = ParseCsvService.new(params[:file]).call
+    _status, payload = ParseCsvService.new(params[:file]).call
 
-    render json: { html: result }
+    render json: { apps: payload[:result].values }
   end
 end

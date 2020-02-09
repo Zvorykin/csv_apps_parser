@@ -5,35 +5,40 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { Container, Form, Col } from 'react-bootstrap'
+import { Container, Form, Col, Button, ButtonToolbar, Table } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+import bsCustomFileInput from 'bs-custom-file-input'
 
-class MarkdownParser extends React.Component {
+
+class CsvParser extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      markdown: '',
-      html: '',
+      file: '',
+      apps: '',
     }
 
-    this.onMarkdownChange = this.onMarkdownChange.bind(this)
+    this.onFileChange = this.onFileChange.bind(this)
+    this.onUploadClick = this.onUploadClick.bind(this)
   }
 
-  async onMarkdownChange(event) {
-    this.setState({ markdown: event.target.value })
+  onFileChange(event) {
+    this.setState({ file: event.target.files[0] })
+  }
+
+  async onUploadClick() {
+    const body = new FormData()
+    body.append('file', this.state.file)
 
     const result = await fetch(`${ window.origin }/parse`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        markdown: event.target.value,
-      }),
+      body,
     }).then(res => res.json())
 
-    this.setState({ ...this.state, html: result.html })
+    console.log(result)
+
+    this.setState({ ...this.state, apps: result.apps })
   }
 
   render() {
@@ -41,14 +46,39 @@ class MarkdownParser extends React.Component {
       <Container className="mt-3">
         <Form>
           <Form.Row>
-            <Form.Group as={ Col }>
-              <Form.Label>Markdown</Form.Label>
-              <Form.Control as="textarea" rows="15" value={ this.state.markdown }
-                            onChange={ this.onMarkdownChange }/>
+            <Form.Group as={ Col } className="col-3">
+              <Form.Label>CSV</Form.Label>
+              <div className="custom-file">
+                <input id="inputGroupFile01" type="file" className="custom-file-input" onChange={ this.onFileChange }/>
+                <label className="custom-file-label" htmlFor="inputGroupFile01">Choose file</label>
+              </div>
+              <ButtonToolbar className="mt-3 justify-content-end">
+                <Button variant="primary" onClick={ this.onUploadClick }>Upload</Button>
+              </ButtonToolbar>
             </Form.Group>
-            <Form.Group as={ Col }>
-              <Form.Label>HTML</Form.Label>
-              <Form.Control as="textarea" rows="15" value={ this.state.html } disabled/>
+
+            <Form.Group as={ Col } className="col-9">
+              <Form.Label>Apps</Form.Label>
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Id</th>
+                    <th>Store</th>
+                    <th>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {(this.state.apps || []).map(({id, store, link}, index) => {
+                      return <tr key={id}>
+                        <td>{index + 1}</td>
+                        <td>{id}</td>
+                        <td>{store}</td>
+                        <td>{link}</td>
+                      </tr>
+                    })}
+                </tbody>
+              </Table>
             </Form.Group>
           </Form.Row>
         </Form>
@@ -59,7 +89,9 @@ class MarkdownParser extends React.Component {
 
 document.addEventListener('DOMContentLoaded', () => {
   ReactDOM.render(
-    <MarkdownParser/>,
+    <CsvParser/>,
     document.body.appendChild(document.createElement('div')),
   )
+
+  bsCustomFileInput.init()
 })

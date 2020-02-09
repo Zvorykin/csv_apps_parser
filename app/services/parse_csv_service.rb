@@ -24,18 +24,8 @@ class ParseCsvService
 
     IO.foreach(csv_file_path) do |line|
       STORE_REGEXPS.each do |regex|
-        matches = line.match(regex)
-        next if matches.nil?
-
-        # we can prepend result to array if we need to store first occurrence
-        # or we can just replace duplicated records
-        id = matches[:id]
-
-        result[id] = {
-          id: id,
-          store: match_store_alias(matches[:store]),
-          link: line.strip
-        }
+        match = line.match(regex)
+        add_match_to_result(match, result) if match.present?
       end
     end
 
@@ -43,6 +33,18 @@ class ParseCsvService
   end
 
   private
+
+  def add_match_to_result(match, result)
+    # we can prepend result to array if we need to store first occurrence
+    # or we can just replace duplicated records
+    id = match[:id]
+
+    result[id] = {
+      id: id,
+      store: match_store_alias(match[:store]),
+      link: match[0]
+    }
+  end
 
   def match_store_alias(store)
     STORE_ALIASES.each do |key, aliases|
